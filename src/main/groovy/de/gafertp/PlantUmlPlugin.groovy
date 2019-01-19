@@ -12,6 +12,8 @@ class PlantUmlPlugin implements Plugin<Project> {
         def extension = project.extensions.create('plantUml', PlantUmlExtension)
 
         def render = { File from, File to, FileFormat format ->
+            assert to.parentFile.exists() || to.parentFile.mkdirs(): "Cannot create directory ${to.parentFile.absolutePath}"
+
             to.withOutputStream { out ->
                 new SourceStringReader(from.text).generateImage(out, new FileFormatOption(format));
             }
