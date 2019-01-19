@@ -22,7 +22,8 @@ class PlantUmlPlugin implements Plugin<Project> {
         project.task('plantUml') {
             doLast {
                 extension.renderings.each {
-                    render(project.file(it.input), project.file(it.output), FileFormat.valueOf(it.format.toUpperCase()))
+                    def format = it.format ?: it.output.replaceAll(/.*\./, '')
+                    render(project.file(it.input), project.file(it.output), FileFormat.valueOf(format.toUpperCase()))
                 }
             }
         }

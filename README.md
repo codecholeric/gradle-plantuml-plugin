@@ -8,7 +8,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '1.0.1'
+  id 'de.gafertp.plantuml' version '1.0.2'
 }
 
 apply plugin: 'de.gafertp.plantuml'
@@ -23,7 +23,8 @@ plantUml {
 }
 ```
 
-Note that `format: 'xxx'` is optional and will default to `format: 'png'`.
+Note that `format: 'xxx'` is optional and will default to the file ending of the
+given output file.
 
 The plugin adds a custom `plantUml` task:
 
