@@ -2,7 +2,11 @@ plugins {
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.10.0'
     id 'groovy'
+    id 'maven-publish'
 }
+
+group = 'de.gafertp'
+version = '1.0.1'
 
 repositories {
     mavenCentral()
@@ -29,4 +33,11 @@ pluginBundle {
     website = 'https://github.com/codecholeric/gradle-plantuml-plugin'
     vcsUrl = 'https://github.com/codecholeric/gradle-plantuml-plugin'
     tags = ['plantuml']
+}
+
+// for testing purposes
+publishing {
+    repositories {
+        mavenLocal()
+    }
 }

@@ -8,7 +8,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '1.0.0'
+  id 'de.gafertp.plantuml' version '1.0.1'
 }
 
 apply plugin: 'de.gafertp.plantuml'
