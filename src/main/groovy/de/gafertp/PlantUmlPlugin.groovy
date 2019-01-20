@@ -11,21 +11,41 @@ class PlantUmlPlugin implements Plugin<Project> {
 
         def extension = project.extensions.create('plantUml', PlantUmlExtension)
 
-        def render = { File from, File to, FileFormat format ->
-            assert to.parentFile.exists() || to.parentFile.mkdirs(): "Cannot create directory ${to.parentFile.absolutePath}"
-
-            to.withOutputStream { out ->
-                new SourceStringReader(from.text).generateImage(out, new FileFormatOption(format));
-            }
-        }
-
         project.task('plantUml') {
             doLast {
-                extension.renderings.each {
-                    def format = it.format ?: it.output.replaceAll(/.*\./, '')
-                    render(project.file(it.input), project.file(it.output), FileFormat.valueOf(format.toUpperCase()))
+                extension.renderings.each { rendering ->
+                    def matchingFileNames = new FileNameFinder().getFileNames(project.file('.').absolutePath, rendering.input)
+                    def outputFile = project.file(rendering.output)
+
+                    if (matchingFileNames.size() == 1) {
+                        render(project.file(rendering.input), outputFile, rendering.format)
+                    } else {
+                        renderAll(matchingFileNames, outputFile, rendering.format)
+                    }
                 }
             }
         }
+    }
+
+    private static void renderAll(List<String> inputFilePaths, File outputFolder, FileFormat format) {
+        assert outputFolder.exists() || outputFolder.mkdirs(): "Cannot create directory ${outputFolder.absolutePath}"
+        assert outputFolder.isDirectory():
+                "Input ${inputFilePaths} matches multiple files, but output ${outputFolder.absolutePath} is no directory"
+
+        inputFilePaths.each { inputFilePath ->
+            def inputFile = new File(inputFilePath)
+            def outputFileName = "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${format.fileSuffix}"
+            def outputFile = new File(outputFolder, outputFileName)
+            render(inputFile, outputFile, format)
+        }
+    }
+
+    private static void render(File from, File to, FileFormat format) {
+        assert to.parentFile.exists() || to.parentFile.mkdirs(): "Cannot create directory ${to.parentFile.absolutePath}"
+
+        to.withOutputStream { out ->
+            new SourceStringReader(from.text).generateImage(out, new FileFormatOption(format))
+        }
+        println "Rendered diagram from ${from.absolutePath} to ${to.absolutePath}"
     }
 }

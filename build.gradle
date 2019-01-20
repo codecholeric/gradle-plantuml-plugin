@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'de.gafertp'
-version = '1.0.2'
+version = '1.1.0'
 
 repositories {
     mavenCentral()
@@ -14,6 +14,10 @@ repositories {
 
 dependencies {
     compile 'net.sourceforge.plantuml:plantuml:8059'
+
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.2'
+    testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
 }
 
 gradlePlugin {
@@ -40,4 +44,8 @@ publishing {
     repositories {
         mavenLocal()
     }
+}
+
+test {
+    useJUnitPlatform()
 }
