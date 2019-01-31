@@ -18,13 +18,17 @@ class PlantUmlPlugin implements Plugin<Project> {
                     def outputFile = project.file(rendering.output)
 
                     if (matchingFileNames.size() == 1) {
-                        render(project.file(rendering.input), outputFile, rendering.format)
+                        render(new File(matchingFileNames[0]), outputFile, rendering.format)
                     } else {
                         renderAll(matchingFileNames, outputFile, rendering.format)
                     }
                 }
             }
         }
+    }
+
+    private static File outputFileAccordingToInputFile(File inputFile, File outputFolder, FileFormat format) {
+        return new File(outputFolder, "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${format.fileSuffix}")
     }
 
     private static void renderAll(List<String> inputFilePaths, File outputFolder, FileFormat format) {
@@ -34,18 +38,21 @@ class PlantUmlPlugin implements Plugin<Project> {
 
         inputFilePaths.each { inputFilePath ->
             def inputFile = new File(inputFilePath)
-            def outputFileName = "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${format.fileSuffix}"
-            def outputFile = new File(outputFolder, outputFileName)
+            def outputFile = outputFileAccordingToInputFile(inputFile, outputFolder, format)
             render(inputFile, outputFile, format)
         }
     }
 
     private static void render(File from, File to, FileFormat format) {
-        assert to.parentFile.exists() || to.parentFile.mkdirs(): "Cannot create directory ${to.parentFile.absolutePath}"
+        File theTo = to.name.endsWith(".${format.fileSuffix}")
+                      ? to
+                      : outputFileAccordingToInputFile(from, to, format)
 
-        to.withOutputStream { out ->
+        assert theTo.parentFile.exists() || theTo.parentFile.mkdirs(): "Cannot create directory ${theTo.parentFile.absolutePath}"
+
+        theTo.withOutputStream { out ->
             new SourceStringReader(from.text).generateImage(out, new FileFormatOption(format))
         }
-        println "Rendered diagram from ${from.absolutePath} to ${to.absolutePath}"
+        println "Rendered diagram from ${from.absolutePath} to ${theTo.absolutePath}"
     }
 }
