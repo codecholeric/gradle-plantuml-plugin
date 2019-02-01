@@ -110,6 +110,32 @@ class PlantUmlPluginTest {
     }
 
     @Test
+    void renders_single_matching_file_in_folder() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/f*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        executePluginTask()
+
+        assert new File(rootDir, 'output/sub').list().toList().contains('first.png'): 'Output directory is empty'
+    }
+
+    @Test
+    void renders_single_matching_file_to_file_name() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/f*.puml', output: 'output/explicit.png', format: 'png'
+            }
+        """
+
+        executePluginTask()
+
+        assert new File(rootDir, 'output').list().toList().contains('explicit.png'): 'Output directory is empty'
+    }
+
+    @Test
     void rejects_multiple_files_if_no_format_is_specified() {
         buildFile << """
             plantUml {

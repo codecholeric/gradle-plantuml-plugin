@@ -17,8 +17,12 @@ class PlantUmlPlugin implements Plugin<Project> {
                     def matchingFileNames = new FileNameFinder().getFileNames(project.file('.').absolutePath, rendering.input)
                     def outputFile = project.file(rendering.output)
 
-                    if (matchingFileNames.size() == 1) {
-                        render(project.file(rendering.input), outputFile, rendering.format)
+                    def isDirectFileRendering = matchingFileNames.size() == 1 &&
+                            !outputFile.directory &&
+                            outputFile.name.endsWith(rendering.format.fileSuffix)
+
+                    if (isDirectFileRendering) {
+                        render(new File(matchingFileNames[0]), outputFile, rendering.format)
                     } else {
                         renderAll(matchingFileNames, outputFile, rendering.format)
                     }
