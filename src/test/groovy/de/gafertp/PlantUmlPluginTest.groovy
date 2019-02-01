@@ -22,6 +22,7 @@ class PlantUmlPluginTest {
 
     File firstPumlFile
     File secondPumlFile
+    File nestedPumlFile
 
     File ditaaFile
 
@@ -34,6 +35,8 @@ class PlantUmlPluginTest {
 
         firstPumlFile = new File(diagramDir, 'first.puml')
         secondPumlFile = new File(diagramDir, 'second.puml')
+        nestedPumlFile = new File(new File(diagramDir, 'nested'), 'third.puml')
+        nestedPumlFile.parentFile.mkdirs()
         ditaaFile = new File(diagramDir, 'some.ditaa')
 
         buildFile << """
@@ -42,7 +45,7 @@ class PlantUmlPluginTest {
             }
         """
 
-        [firstPumlFile, secondPumlFile].each {
+        [firstPumlFile, secondPumlFile, nestedPumlFile].each {
             it << """
             @startuml
             Bob -> Alice : hello
@@ -81,6 +84,19 @@ class PlantUmlPluginTest {
         executePluginTask()
 
         assertOutputsExist([firstPumlFile, secondPumlFile], FileFormat.SVG)
+    }
+
+    @Test
+    void renders_glob_pattern() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/**/*.puml', output: 'output/sub', format: 'svg'
+            }
+        """
+
+        executePluginTask()
+
+        assertOutputsExist([firstPumlFile, secondPumlFile, nestedPumlFile], FileFormat.SVG)
     }
 
     @Test
