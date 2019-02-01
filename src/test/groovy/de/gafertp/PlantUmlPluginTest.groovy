@@ -70,7 +70,9 @@ class PlantUmlPluginTest {
 
         executePluginTask()
 
-        assert new File(rootDir, 'output/sub/puml.svg').exists(): 'Rendered diagram exists'
+        def generatedDiagram = new File(rootDir, 'output/sub/puml.svg')
+        assert generatedDiagram.exists(): 'Rendered diagram exists'
+        assert generatedDiagram.isFile(): 'Rendered diagram is a file'
     }
 
     @Test
