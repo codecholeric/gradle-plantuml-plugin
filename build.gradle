@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.sourceforge.plantuml:plantuml:1.2019.0'
+    compile 'net.sourceforge.plantuml:plantuml:1.2019.1'
 
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.2'
     testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'
