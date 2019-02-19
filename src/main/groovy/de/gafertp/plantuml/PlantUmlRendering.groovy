@@ -1,4 +1,4 @@
-package de.gafertp
+package de.gafertp.plantuml
 
 import groovy.transform.Canonical
 import net.sourceforge.plantuml.FileFormat

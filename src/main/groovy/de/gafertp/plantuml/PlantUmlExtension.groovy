@@ -1,4 +1,4 @@
-package de.gafertp
+package de.gafertp.plantuml
 
 class PlantUmlExtension {
     List<PlantUmlRendering> renderings = []

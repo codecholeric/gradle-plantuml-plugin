@@ -1,4 +1,4 @@
-package de.gafertp
+package de.gafertp.plantuml
 
 import net.sourceforge.plantuml.FileFormat
 import org.gradle.testkit.runner.BuildResult
