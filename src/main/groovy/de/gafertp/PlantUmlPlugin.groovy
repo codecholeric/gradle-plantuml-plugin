@@ -48,7 +48,7 @@ class PlantUmlPlugin implements Plugin<Project> {
         assert to.parentFile.exists() || to.parentFile.mkdirs(): "Cannot create directory ${to.parentFile.absolutePath}"
 
         to.withOutputStream { out ->
-            new SourceStringReader(from.text).generateImage(out, new FileFormatOption(format))
+            new SourceStringReader(from.text).outputImage(out, new FileFormatOption(format))
         }
         println "Rendered diagram from ${from.absolutePath} to ${to.absolutePath}"
     }
