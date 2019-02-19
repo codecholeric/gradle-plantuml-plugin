@@ -1,12 +1,12 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version '0.10.0'
+    id 'com.gradle.plugin-publish' version '0.10.1'
     id 'groovy'
     id 'maven-publish'
 }
 
 group = 'de.gafertp'
-version = '1.2.0'
+version = '2.0.0'
 
 repositories {
     mavenCentral()
@@ -15,9 +15,9 @@ repositories {
 dependencies {
     compile 'net.sourceforge.plantuml:plantuml:1.2019.1'
 
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.0'
     testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.0'
 }
 
 gradlePlugin {
