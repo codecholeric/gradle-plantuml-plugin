@@ -4,9 +4,6 @@
 # Ignore Gradle build output directory
 build
 
-# Ignore Gradle properties file (it contains credentials for Artifactory)
-gradle.properties
-
 # Ignore Gradle GUI config
 gradle-app.setting
 
