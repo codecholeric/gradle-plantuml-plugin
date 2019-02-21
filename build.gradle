@@ -47,6 +47,17 @@ test {
 }
 
 // for local testing purposes
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    classifier = 'source'
+}
+
+// for local testing purposes
+artifacts {
+    archives sourcesJar
+}
+
+// for local testing purposes
 publishing {
     repositories {
         mavenLocal()
@@ -63,6 +74,10 @@ publishing {
             // instead of buildscript repository, dependency and apply plugin declarations
             groupId gradlePlugin.plugins.plantUmlPlugin.id
             artifactId gradlePlugin.plugins.plantUmlPlugin.id + ".gradle.plugin"
+
+            artifact (sourcesJar) {
+                classifier = 'source'
+            }
         }
     }
 }
@@ -79,6 +94,7 @@ artifactory {
         }
         defaults {
             publications('plantUmlPluginJar')
+            publications('plantUmlPluginSourcesJar')
         }
     }
     resolve {

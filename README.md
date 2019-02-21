@@ -8,10 +8,8 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '1.2.0'
+  id 'de.gafertp.plantuml' version '2.0.0'
 }
-
-apply plugin: 'de.gafertp.plantuml'
 ```
 
 Then configure PlantUML files to render:
