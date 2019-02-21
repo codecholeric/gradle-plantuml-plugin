@@ -4,7 +4,7 @@ import groovy.transform.Canonical
 import net.sourceforge.plantuml.FileFormat
 
 @Canonical
-class PlantUmlPreparedRender {
+class PlantUmlPreparedRender implements Serializable {
     File input
     File output
     FileFormat format

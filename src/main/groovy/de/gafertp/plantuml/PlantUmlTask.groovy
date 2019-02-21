@@ -1,21 +1,32 @@
 package de.gafertp.plantuml
 
-import net.sourceforge.plantuml.FileFormatOption
-import net.sourceforge.plantuml.SourceStringReader
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
+import org.gradle.workers.IsolationMode
+import org.gradle.workers.WorkerConfiguration
+import org.gradle.workers.WorkerExecutor
+
+import javax.inject.Inject
 
 class PlantUmlTask extends DefaultTask {
     Map<File, PlantUmlPreparedRender> inputPreparedRenderMap = [:]
+    final WorkerExecutor workerExecutor
 
     @InputFiles
     List<File> inputFiles = []
 
     @OutputFiles
     List<File> outputFiles = []
+
+    @Inject
+    PlantUmlTask(WorkerExecutor workerExecutor) {
+        super()
+        this.workerExecutor = workerExecutor
+    }
 
     @TaskAction
     void execute(IncrementalTaskInputs inputs) {
@@ -25,11 +36,17 @@ class PlantUmlTask extends DefaultTask {
         inputs.outOfDate { change ->
             if (inputPreparedRenderMap.containsKey(change.file)) {
                 def preparedRender = inputPreparedRenderMap[change.file]
-                preparedRender.output.withOutputStream { out ->
-                    new SourceStringReader(preparedRender.input.text).outputImage(out, new FileFormatOption(preparedRender.format))
-                }
+                workerExecutor.submit(PlantUmlRenderer.class, new Action<WorkerConfiguration>() {
+                    @Override
+                    void execute(WorkerConfiguration workerConfiguration) {
+                        workerConfiguration.setIsolationMode(IsolationMode.NONE)
+                        workerConfiguration.params(preparedRender)
+                    }
+                })
             }
         }
+
+        workerExecutor.await()
 
         inputs.removed { change ->
             if (inputPreparedRenderMap.containsKey(change.file)) {

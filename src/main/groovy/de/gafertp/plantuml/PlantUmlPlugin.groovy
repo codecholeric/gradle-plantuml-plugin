@@ -17,6 +17,7 @@ class PlantUmlPlugin implements Plugin<Project> {
     }
 
     private static List<PlantUmlPreparedRender> prepareRenders(Project project, List<PlantUmlReceivedRender> receivedRenders) {
+        // TODO: refactor this
         List<PlantUmlPreparedRender> preparedRenders = []
 
         receivedRenders.each { render ->

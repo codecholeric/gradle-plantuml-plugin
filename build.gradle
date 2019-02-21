@@ -94,7 +94,6 @@ artifactory {
         }
         defaults {
             publications('plantUmlPluginJar')
-            publications('plantUmlPluginSourcesJar')
         }
     }
     resolve {
