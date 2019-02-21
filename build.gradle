@@ -49,7 +49,7 @@ test {
 // for local testing purposes
 task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
-    classifier = 'source'
+    archiveClassifier = 'source'
 }
 
 // for local testing purposes
