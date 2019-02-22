@@ -46,8 +46,6 @@ class PlantUmlTask extends DefaultTask {
             }
         }
 
-        workerExecutor.await()
-
         inputs.removed { change ->
             if (inputPreparedRenderMap.containsKey(change.file)) {
                 def preparedRender = inputPreparedRenderMap[change.file]
