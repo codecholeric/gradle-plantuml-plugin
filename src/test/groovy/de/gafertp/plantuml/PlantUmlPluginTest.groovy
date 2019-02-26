@@ -13,6 +13,7 @@ import java.nio.file.Path
 
 import static org.gradle.testkit.runner.TaskOutcome.FAILED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
 @ExtendWith(TempDirectory)
 class PlantUmlPluginTest {
@@ -165,6 +166,60 @@ class PlantUmlPluginTest {
 
         assert result.task(':plantUml') == null
         assert result.output.toLowerCase().contains('must be explicitly specified via "format: \'xxx\'"')
+    }
+
+    @Test
+    void returns_up_to_date_on_same_inputs_outputs() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/f*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlTaskExecution().build()
+        assert result.task(':plantUml').outcome == SUCCESS
+
+        def result2 = plantUmlTaskExecution().build()
+        assert result2.task(':plantUml').outcome == UP_TO_DATE
+    }
+
+    @Test
+    void returns_out_of_date_on_different_inputs() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/f*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlTaskExecution().build()
+        assert result.task(':plantUml').outcome == SUCCESS
+
+        firstPumlFile.write("""
+            @startuml
+            Bob -> Alice : hello2
+            @enduml
+        """)
+
+        def result2 = plantUmlTaskExecution().build()
+        assert result2.task(':plantUml').outcome == SUCCESS
+    }
+
+    @Test
+    void returns_out_of_date_on_different_outputs() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/f*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlTaskExecution().build()
+        assert result.task(':plantUml').outcome == SUCCESS
+
+        def outputFile = new File(rootDir, 'output/sub').listFiles()[0]
+        outputFile << 'modifications'
+
+        def result2 = plantUmlTaskExecution().build()
+        assert result2.task(':plantUml').outcome == SUCCESS
     }
 
     private BuildResult executePluginTask() {
