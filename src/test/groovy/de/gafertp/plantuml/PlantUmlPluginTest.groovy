@@ -163,7 +163,7 @@ class PlantUmlPluginTest {
 
         def result = plantUmlTaskExecution().buildAndFail()
 
-        assert result.task(':plantUml').outcome == FAILED
+        assert result.task(':plantUml') == null
         assert result.output.toLowerCase().contains('must be explicitly specified via "format: \'xxx\'"')
     }
 
