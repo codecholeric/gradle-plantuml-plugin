@@ -2,6 +2,7 @@ package de.gafertp.plantuml
 
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
@@ -13,8 +14,10 @@ import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
 class PlantUmlTask extends DefaultTask {
+    protected final WorkerExecutor workerExecutor
+
+    @Input
     Map<File, PlantUmlPreparedRender> inputPreparedRenderMap = [:]
-    final WorkerExecutor workerExecutor
 
     @InputFiles
     List<File> inputFiles = []
