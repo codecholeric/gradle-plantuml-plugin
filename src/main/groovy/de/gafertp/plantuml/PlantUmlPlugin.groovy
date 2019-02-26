@@ -1,5 +1,6 @@
 package de.gafertp.plantuml
 
+import net.sourceforge.plantuml.FileFormat
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -17,7 +18,6 @@ class PlantUmlPlugin implements Plugin<Project> {
     }
 
     private static List<PlantUmlPreparedRender> prepareRenders(Project project, List<PlantUmlReceivedRender> receivedRenders) {
-        // TODO: refactor this
         List<PlantUmlPreparedRender> preparedRenders = []
 
         receivedRenders.each { render ->
@@ -29,27 +29,31 @@ class PlantUmlPlugin implements Plugin<Project> {
                     outputFile.name.endsWith(render.format.fileSuffix)
 
             if (isDirectFileRendering) {
-                def inputFile = new File(matchingFileNames[0])
-                assert outputFile.parentFile.exists() || outputFile.parentFile.mkdirs()
-                preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, render.format)
+                addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format)
             } else {
-                assert outputFile.exists() || outputFile.mkdirs(): "Cannot create directory ${outputFile.absolutePath}"
-                assert outputFile.isDirectory():
-                        "Input ${matchingFileNames} matches multiple files, but output ${outputFile.absolutePath} is no directory"
-
-                def outputFolder = outputFile
-
-                matchingFileNames.each { inputFilePath ->
-                    def inputFile = new File(inputFilePath)
-                    def outputFileName = "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${render.format.fileSuffix}"
-                    outputFile = new File(outputFolder, outputFileName)
-
-                    assert outputFile.parentFile.exists() || outputFile.parentFile.mkdirs()
-                    preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, render.format)
-                }
+                addDirectoryToPreparedRenders(preparedRenders, matchingFileNames, outputFile, render.format)
             }
         }
 
         return preparedRenders
+    }
+
+    private static void addFileToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, File inputFile, File outputFile, FileFormat fileFormat) {
+        assert outputFile.parentFile.exists() || outputFile.parentFile.mkdirs()
+        preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, fileFormat)
+    }
+
+    private static void addDirectoryToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, List<String> inputFiles, File outputDirectory, FileFormat fileFormat) {
+        assert outputDirectory.exists() || outputDirectory.mkdirs(): "Cannot create directory ${outputDirectory.absolutePath}"
+        assert outputDirectory.isDirectory():
+                "Input ${inputFiles} matches multiple files, but output ${outputDirectory.absolutePath} is no directory"
+
+        inputFiles.each { inputFilePath ->
+            def inputFile = new File(inputFilePath)
+            def outputFileName = "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${fileFormat.fileSuffix}"
+            def outputFile = new File(outputDirectory, outputFileName)
+
+            addFileToPreparedRenders(preparedRenders, inputFile, outputFile, fileFormat)
+        }
     }
 }

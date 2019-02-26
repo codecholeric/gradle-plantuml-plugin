@@ -14,7 +14,7 @@ import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
 class PlantUmlTask extends DefaultTask {
-    protected final WorkerExecutor workerExecutor
+    private final WorkerExecutor workerExecutor
 
     @Input
     Map<File, PlantUmlPreparedRender> inputPreparedRenderMap = [:]
@@ -33,13 +33,18 @@ class PlantUmlTask extends DefaultTask {
 
     @TaskAction
     void execute(IncrementalTaskInputs inputs) {
+        // local variable that references the private WorkerExecutor above
+        // it needs to be referenced here in order to be accessible from a closure
+        // see https://stackoverflow.com/a/40957351/6271450
+        def localWorkerExecutor = workerExecutor
+
         if (!inputs.incremental)
             project.delete(outputFiles)
 
         inputs.outOfDate { change ->
             if (inputPreparedRenderMap.containsKey(change.file)) {
                 def preparedRender = inputPreparedRenderMap[change.file]
-                workerExecutor.submit(PlantUmlRenderer.class, new Action<WorkerConfiguration>() {
+                localWorkerExecutor.submit(PlantUmlRenderer.class, new Action<WorkerConfiguration>() {
                     @Override
                     void execute(WorkerConfiguration workerConfiguration) {
                         workerConfiguration.setIsolationMode(IsolationMode.NONE)
