@@ -1,6 +1,10 @@
 # Gradle PlantUML Plugin
 
-This is a very simple plugin to render a couple of files via [PlantUML](http://plantuml.com/).
+This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/).
+
+## Requirements
+
+* [Graphviz](https://www.graphviz.org/download/) (may be needed for rendering certain diagrams)
 
 ## How to use it
 
@@ -36,3 +40,11 @@ The plugin adds a custom `plantUml` task:
 ```
 ./gradlew plantUml
 ```
+
+## Incremental build support
+
+The plugin uses incremental builds. This means that only modified input files will be rendered on consecutive runs (at first run all the files will be rendered again, Gradle has to build its cache). When any of the output files change, all inputs will be rendered again.
+
+## Multithreading support
+
+This plugin renders all the inputs in parallel (using worker threads).
