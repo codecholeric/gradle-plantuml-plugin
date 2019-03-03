@@ -27,7 +27,6 @@ class PlantUmlTask extends DefaultTask {
 
     @Inject
     PlantUmlTask(WorkerExecutor workerExecutor) {
-        super()
         this.workerExecutor = workerExecutor
     }
 
@@ -38,8 +37,9 @@ class PlantUmlTask extends DefaultTask {
         // see https://stackoverflow.com/a/40957351/6271450
         def localWorkerExecutor = workerExecutor
 
-        if (!inputs.incremental)
+        if (!inputs.incremental) {
             project.delete(outputFiles)
+        }
 
         inputs.outOfDate { change ->
             if (inputPreparedRenderMap.containsKey(change.file)) {

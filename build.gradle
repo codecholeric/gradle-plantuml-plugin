@@ -65,7 +65,7 @@ publishing {
 
     publications {
         // used by Artifactory Gradle plugin
-        plantUmlPluginJar (MavenPublication) {
+        plantUmlPluginJar(MavenPublication) {
             from components.java
             // these have to be specified explicitly because
             // the Artifactory Gradle plugin is not compatible with
@@ -75,7 +75,7 @@ publishing {
             groupId gradlePlugin.plugins.plantUmlPlugin.id
             artifactId gradlePlugin.plugins.plantUmlPlugin.id + ".gradle.plugin"
 
-            artifact (sourcesJar) {
+            artifact(sourcesJar) {
                 classifier = 'source'
             }
         }
@@ -83,25 +83,27 @@ publishing {
 }
 
 // for local testing purposes
-artifactory {
-    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-    publish {
-        repository {
-            repoKey = "${artifactory_publish_repoKey}"
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
+if (project.hasProperty('artifactory_contextUrl')) {
+    artifactory {
+        contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+        publish {
+            repository {
+                repoKey = "${artifactory_publish_repoKey}"
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+                maven = true
+            }
+            defaults {
+                publications('plantUmlPluginJar')
+            }
         }
-        defaults {
-            publications('plantUmlPluginJar')
-        }
-    }
-    resolve {
-        repository {
-            repoKey = "${artifactory_resolve_repoKey}"
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
+        resolve {
+            repository {
+                repoKey = "${artifactory_resolve_repoKey}"
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+                maven = true
+            }
         }
     }
 }
