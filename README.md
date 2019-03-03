@@ -1,6 +1,10 @@
 # Gradle PlantUML Plugin
 
-This is a very simple plugin to render a couple of files via [PlantUML](http://plantuml.com/).
+This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/).
+
+## Requirements
+
+* [Graphviz](https://www.graphviz.org/download/) (may be needed for rendering certain diagrams)
 
 ## How to use it
 
@@ -8,10 +12,8 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '1.2.0'
+  id 'de.gafertp.plantuml' version '2.0.0'
 }
-
-apply plugin: 'de.gafertp.plantuml'
 ```
 
 Then configure PlantUML files to render:
@@ -39,6 +41,14 @@ The plugin adds a custom `plantUml` task:
 ./gradlew plantUml
 ```
 
+## Incremental build support
+
+The plugin uses incremental builds. This means that only modified input files will be rendered on consecutive runs (at first run all the files will be rendered again, Gradle has to build its cache). When any of the output files change, all inputs will be rendered again.
+
+## Multithreading support
+
+This plugin renders all the inputs in parallel (using worker threads).
+
 ## How to use your own version of PlantUML
 
 To work out of the box, the `gradle-plantuml-plugin` declares a transitive dependency on
@@ -65,4 +75,50 @@ Alternatively use a local JAR file:
 
 ```
 classpath files('libs/plantuml-any.jar')
+```
+
+## JBoss Artifactory local repository for forking and local testing
+
+If you want to fork this plugin and extend its functionality, you will also want to test your modifications. For this, you'll have to deploy the plugin to a local artifact repository.
+
+For this you can use a local JFrog Artifactory artifact repository. You have to make/edit your `~/.gradle/gradle.properties` (`~` means your home directory) file and add the following details (considering you are running with default settings and a default Gradle repository initialized):
+
+```
+artifactory_user=your_artifactory_user
+artifactory_password=your_artifactory_encrypted_password
+artifactory_contextUrl=http://localhost:8081/artifactory
+artifactory_contextUrl_resolve=http://localhost:8081/artifactory/gradle-dev
+artifactory_publish_repoKey=gradle-dev-local
+artifactory_resolve_repoKey=gradle-dev
+```
+
+Make sure to change the plugin version to something new, so that it doesn't get confused with the official ones:
+
+`build.gradle` in the plugin fork:
+```
+group = 'de.gafertp.plantuml'
+version = '<your_plugin_version>'
+```
+
+After this, just run the `:artifactoryDeploy` task after building, and the plugin will be automatically deployed to your local repository.
+
+To use this custom build in your project, just add the following to your `settings.gradle` file:
+
+```
+pluginManagement {
+    repositories {
+        maven {
+            url "${artifactory_contextUrl_resolve}"
+        }
+    }
+}
+```
+
+It is not necessary to modify your plugins closure in `build.gradle`. It should look like this:
+
+```
+plugins {
+	// this is a custom plugin that will be found on a local Artifactory repository
+	id 'de.gafertp.plantuml' version '<your_plugin_version>'
+}
 ```

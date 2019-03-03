@@ -1,10 +1,10 @@
-package de.gafertp
+package de.gafertp.plantuml
 
 import groovy.transform.Canonical
 import net.sourceforge.plantuml.FileFormat
 
 @Canonical
-class PlantUmlRendering {
+class PlantUmlReceivedRender {
     String input
     String output
     String format
@@ -14,7 +14,7 @@ class PlantUmlRendering {
         try {
             FileFormat.valueOf(formatString.toUpperCase())
         } catch (IllegalArgumentException ignored) {
-            throw new PlantUmlRenderingException(
+            throw new PlantUmlRenderException(
                     "Format for rendering '${input}' to '${output}' must be explicitly specified via \"format: 'xxx'\"")
         }
     }

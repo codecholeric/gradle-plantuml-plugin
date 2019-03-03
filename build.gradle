@@ -1,23 +1,26 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version '0.10.0'
+    id 'com.gradle.plugin-publish' version '0.10.1'
     id 'groovy'
     id 'maven-publish'
+
+    // for local testing purposes
+    id "com.jfrog.artifactory" version '4.9.3'
 }
 
-group = 'de.gafertp'
-version = '1.2.0'
+group = 'de.gafertp.plantuml'
+version = '2.0.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'net.sourceforge.plantuml:plantuml:1.2019.0'
+    compile 'net.sourceforge.plantuml:plantuml:1.2019.1'
 
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.0'
     testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.0'
 }
 
 gradlePlugin {
@@ -28,7 +31,7 @@ gradlePlugin {
             description = 'A very simple plugin to render PlantUML files. ' +
                     'Takes a set of diagram files together with desired output files / formats ' +
                     'and renders them with PlantUML (http://plantuml.com/).'
-            implementationClass = 'de.gafertp.PlantUmlPlugin'
+            implementationClass = 'de.gafertp.plantuml.PlantUmlPlugin'
         }
     }
 }
@@ -39,13 +42,68 @@ pluginBundle {
     tags = ['plantuml']
 }
 
-// for testing purposes
+test {
+    useJUnitPlatform()
+}
+
+// for local testing purposes
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    archiveClassifier = 'source'
+}
+
+// for local testing purposes
+artifacts {
+    archives sourcesJar
+}
+
+// for local testing purposes
 publishing {
     repositories {
         mavenLocal()
     }
+
+    publications {
+        // used by Artifactory Gradle plugin
+        plantUmlPluginJar(MavenPublication) {
+            from components.java
+            // these have to be specified explicitly because
+            // the Artifactory Gradle plugin is not compatible with
+            // the java-gradle-plugin that exports jars using Gradle Marker Artifacts
+            // Gradle Marker Artifacts are needed to use the new plugins DSL
+            // instead of buildscript repository, dependency and apply plugin declarations
+            groupId gradlePlugin.plugins.plantUmlPlugin.id
+            artifactId gradlePlugin.plugins.plantUmlPlugin.id + ".gradle.plugin"
+
+            artifact(sourcesJar) {
+                classifier = 'source'
+            }
+        }
+    }
 }
 
-test {
-    useJUnitPlatform()
+// for local testing purposes
+if (project.hasProperty('artifactory_contextUrl')) {
+    artifactory {
+        contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+        publish {
+            repository {
+                repoKey = "${artifactory_publish_repoKey}"
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+                maven = true
+            }
+            defaults {
+                publications('plantUmlPluginJar')
+            }
+        }
+        resolve {
+            repository {
+                repoKey = "${artifactory_resolve_repoKey}"
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+                maven = true
+            }
+        }
+    }
 }
