@@ -61,7 +61,7 @@ by configuring the plugin within the `buildscript` block:
 ```
 buildscript {
     dependencies {
-        classpath('de.gafertp:gradle-plantuml-plugin:1.2.0') {
+        classpath('de.gafertp:gradle-plantuml-plugin:2.0.0') {
             exclude group: 'net.sourceforge.plantuml', module: 'plantuml'
         }
         classpath "net.sourceforge.plantuml:plantuml:${myVersion}"
