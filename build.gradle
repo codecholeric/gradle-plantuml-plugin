@@ -9,14 +9,15 @@ plugins {
 }
 
 group = 'de.gafertp.plantuml'
-version = '2.0.0'
+version = '2.0.1'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'net.sourceforge.plantuml:plantuml:1.2019.1'
+    compile 'net.sourceforge.plantuml:plantuml:1.2019.2'
+    compile 'commons-io:commons-io:2.6'
 
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.0'
     testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'
@@ -83,27 +84,25 @@ publishing {
 }
 
 // for local testing purposes
-if (project.hasProperty('artifactory_contextUrl')) {
-    artifactory {
-        contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-        publish {
-            repository {
-                repoKey = "${artifactory_publish_repoKey}"
-                username = "${artifactory_user}"
-                password = "${artifactory_password}"
-                maven = true
-            }
-            defaults {
-                publications('plantUmlPluginJar')
-            }
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = "${artifactory_publish_repoKey}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
         }
-        resolve {
-            repository {
-                repoKey = "${artifactory_resolve_repoKey}"
-                username = "${artifactory_user}"
-                password = "${artifactory_password}"
-                maven = true
-            }
+        defaults {
+            publications('plantUmlPluginJar')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = "${artifactory_resolve_repoKey}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
         }
     }
 }

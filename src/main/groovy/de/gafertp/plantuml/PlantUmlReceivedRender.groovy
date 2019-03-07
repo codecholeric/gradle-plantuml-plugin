@@ -14,7 +14,7 @@ class PlantUmlReceivedRender {
         try {
             FileFormat.valueOf(formatString.toUpperCase())
         } catch (IllegalArgumentException ignored) {
-            throw new PlantUmlRenderException(
+            throw new PlantUmlException(
                     "Format for rendering '${input}' to '${output}' must be explicitly specified via \"format: 'xxx'\"")
         }
     }

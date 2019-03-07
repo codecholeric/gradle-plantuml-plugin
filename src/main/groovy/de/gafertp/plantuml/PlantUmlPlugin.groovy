@@ -10,9 +10,13 @@ class PlantUmlPlugin implements Plugin<Project> {
 
         project.tasks.register('plantUml', PlantUmlTask) {
             prepareRenders(project, extension.receivedRenders).each { entry ->
-                inputFiles << entry.input
-                outputFiles << entry.output
-                inputPreparedRenderMap << [(entry.input): entry]
+                addPreparedRender(entry)
+            }
+        }
+
+        project.tasks.register('plantUmlIO') {
+            prepareRenders(project, extension.receivedRenders).each { entry ->
+                project.println("\"${project.relativePath(entry.input)}\" \"${project.relativePath(entry.output.absolutePath)}\"")
             }
         }
     }
