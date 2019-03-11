@@ -16,7 +16,7 @@ class PlantUmlPlugin implements Plugin<Project> {
 
         project.tasks.register('plantUmlIO') {
             prepareRenders(project, extension.receivedRenders).each { entry ->
-                project.println("\"${project.relativePath(entry.input)}\" \"${project.relativePath(entry.output.absolutePath)}\"")
+                project.println("${project.relativePath(entry.input)},${project.relativePath(entry.output)}")
             }
         }
     }
@@ -26,16 +26,21 @@ class PlantUmlPlugin implements Plugin<Project> {
 
         receivedRenders.each { render ->
             def matchingFileNames = new FileNameFinder().getFileNames(project.file('.').absolutePath, render.input)
-            def outputFile = project.file(render.output)
 
-            def isDirectFileRendering = matchingFileNames.size() == 1 &&
-                    !outputFile.directory &&
-                    outputFile.name.endsWith(render.format.fileSuffix)
+            if (!matchingFileNames.empty) {
+                def outputFile = project.file(render.output)
 
-            if (isDirectFileRendering) {
-                addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format)
+                def isDirectFileRendering = matchingFileNames.size() == 1 &&
+                        !outputFile.directory &&
+                        outputFile.name.endsWith(render.format.fileSuffix)
+
+                if (isDirectFileRendering) {
+                    addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format)
+                } else {
+                    addDirectoryToPreparedRenders(preparedRenders, matchingFileNames, outputFile, render.format)
+                }
             } else {
-                addDirectoryToPreparedRenders(preparedRenders, matchingFileNames, outputFile, render.format)
+                project.logger.warn("[PlantUml] Warning: ignoring render input: '${render.input}' because no suitable files have been found")
             }
         }
 
