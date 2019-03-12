@@ -12,6 +12,10 @@ class PlantUmlPlugin implements Plugin<Project> {
             prepareRenders(project, extension.receivedRenders).each { entry ->
                 addPreparedRender(entry)
             }
+
+            extension.receivedRenders.each { entry ->
+                addReceivedRender(entry)
+            }
         }
 
         project.tasks.register('plantUmlIO') {

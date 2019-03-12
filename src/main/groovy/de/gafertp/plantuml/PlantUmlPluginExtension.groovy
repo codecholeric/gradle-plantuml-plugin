@@ -7,6 +7,10 @@ class PlantUmlPluginExtension {
         assert config.input != null: 'PlantUML rendering input must be specified via \'input: $fileLocation\''
         assert config.output != null: 'PlantUML rendering output must be specified via \'output: $fileLocation\''
 
-        receivedRenders << new PlantUmlReceivedRender(input: config.input, output: config.output, format: config.format)
+        String input = config.input.replace('\\', '/')
+        String output = config.output.replace('\\', '/')
+        String format = config.format
+
+        receivedRenders << new PlantUmlReceivedRender(input: input, output: output, format: format)
     }
 }

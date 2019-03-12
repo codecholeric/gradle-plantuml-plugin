@@ -1,9 +1,7 @@
 package de.gafertp.plantuml
 
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.TaskAction
@@ -13,12 +11,17 @@ import org.gradle.workers.WorkerConfiguration
 import org.gradle.workers.WorkerExecutor
 
 import javax.inject.Inject
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
+import java.nio.file.Path
+import java.nio.file.PathMatcher
+import java.util.regex.Pattern
 
 class PlantUmlTask extends DefaultTask {
     private final WorkerExecutor workerExecutor
 
-    @Input
     private Map<File, PlantUmlPreparedRender> inputPreparedRenderMap = [:]
+    private Map<String, PlantUmlReceivedRender> inputReceivedRenderMap = [:]
 
     @InputFiles
     Set<File> inputFiles = []
@@ -30,6 +33,29 @@ class PlantUmlTask extends DefaultTask {
         inputPreparedRenderMap << [(preparedRender.input): preparedRender]
         inputFiles << preparedRender.input
         outputDirectories << preparedRender.output.parentFile
+    }
+
+    void addReceivedRender(PlantUmlReceivedRender receivedRender) {
+        inputReceivedRenderMap << [(receivedRender.input): receivedRender]
+    }
+
+    File tryGetOutputFileForNotExistingInput(File input) {
+        String relativeInputPath = project.relativePath(input).replace('\\', '/')
+
+        if (inputReceivedRenderMap.containsKey(relativeInputPath)) {
+            return project.file(inputReceivedRenderMap[relativeInputPath].output)
+        }
+
+        for (Map.Entry<String, PlantUmlReceivedRender> mapEntry: inputReceivedRenderMap.entrySet()) {
+            PathMatcher globPathMatcher = FileSystems.getDefault().getPathMatcher('glob:' + mapEntry.key)
+            Path path = FileSystems.getDefault().getPath(relativeInputPath)
+            if (globPathMatcher.matches(path)) {
+                File outputFolder = project.file(mapEntry.value.output)
+                return project.file(outputFolder.path + '/' + input.name.substring(0, input.name.indexOf('.')) + '.' + mapEntry.value.format)
+            }
+        }
+
+        return null
     }
 
     @Inject
@@ -47,10 +73,6 @@ class PlantUmlTask extends DefaultTask {
 
         if (!inputs.incremental) {
             logger.lifecycle('[PlantUml] Gradle cannot use an incremental build - rendering everything')
-            logger.lifecycle("[PlantUml] Deleting all output directories contents: ${outputDirectories.toString()}")
-            for (File directory in outputDirectories) {
-                FileUtils.cleanDirectory(directory)
-            }
         }
 
         inputs.outOfDate { change ->
@@ -72,10 +94,12 @@ class PlantUmlTask extends DefaultTask {
         }
 
         inputs.removed { change ->
-            def preparedRender = localInputPreparedRenderMap[change.file]
-            if (preparedRender.output.exists()) {
-                logger.lifecycle("[PlantUml] Deleting output file ${preparedRender.output.toString()}} because of missing input file ${preparedRender.input.toString()}")
-                preparedRender.output.delete()
+            File outputFile = tryGetOutputFileForNotExistingInput(change.file)
+            if (outputFile != null) {
+                if (outputFile.exists()) {
+                    logger.lifecycle("[PlantUml] Deleting output file ${outputFile.path}} because of missing input file ${change.file.path}")
+                    outputFile.delete()
+                }
             }
         }
     }
