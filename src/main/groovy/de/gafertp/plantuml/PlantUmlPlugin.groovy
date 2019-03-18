@@ -35,7 +35,7 @@ class PlantUmlPlugin implements Plugin<Project> {
                 String input_path = project.property('plantumloutputforinputpath')
                 File output_file = PlantUmlUtils.tryGetOutputFileForNotExistingInput(inputReceivedRenderMap, project, project.file(input_path))
                 if (output_file != null) {
-                    project.println(project.relativePath(output_file))
+                    project.println(project.relativePath(output_file).replace('\\', '/'))
                 }
             } else {
                 project.println('This task has to be run with the \'plantumloutputforinputpath\' property set. Usage: ./gradlew :plantUmlOutputForInput -Pplantumloutputforinputpath=\"your_path_here\"')
