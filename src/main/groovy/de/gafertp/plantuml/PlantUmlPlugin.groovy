@@ -23,6 +23,24 @@ class PlantUmlPlugin implements Plugin<Project> {
                 project.println("${project.relativePath(entry.input)},${project.relativePath(entry.output)}")
             }
         }
+
+        project.tasks.register('plantUmlOutputForInput') {
+            Map<String, PlantUmlReceivedRender> inputReceivedRenderMap = [:]
+
+            extension.receivedRenders.each { entry ->
+                inputReceivedRenderMap << [(entry.input): entry]
+            }
+
+            if (project.hasProperty('plantumloutputforinputpath')) {
+                String input_path = project.property('plantumloutputforinputpath')
+                File output_file = PlantUmlUtils.tryGetOutputFileForNotExistingInput(inputReceivedRenderMap, project, project.file(input_path))
+                if (output_file != null) {
+                    project.println(project.relativePath(output_file))
+                }
+            } else {
+                project.println('This task has to be run with the \'plantumloutputforinputpath\' property set. Usage: ./gradlew :plantUmlOutputForInput -Pplantumloutputforinputpath=\"your_path_here\"')
+            }
+        }
     }
 
     private static List<PlantUmlPreparedRender> prepareRenders(Project project, List<PlantUmlReceivedRender> receivedRenders) {

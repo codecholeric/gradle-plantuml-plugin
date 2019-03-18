@@ -11,11 +11,6 @@ import org.gradle.workers.WorkerConfiguration
 import org.gradle.workers.WorkerExecutor
 
 import javax.inject.Inject
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
-import java.nio.file.Path
-import java.nio.file.PathMatcher
-import java.util.regex.Pattern
 
 class PlantUmlTask extends DefaultTask {
     private final WorkerExecutor workerExecutor
@@ -39,25 +34,6 @@ class PlantUmlTask extends DefaultTask {
         inputReceivedRenderMap << [(receivedRender.input): receivedRender]
     }
 
-    File tryGetOutputFileForNotExistingInput(File input) {
-        String relativeInputPath = project.relativePath(input).replace('\\', '/')
-
-        if (inputReceivedRenderMap.containsKey(relativeInputPath)) {
-            return project.file(inputReceivedRenderMap[relativeInputPath].output)
-        }
-
-        for (Map.Entry<String, PlantUmlReceivedRender> mapEntry: inputReceivedRenderMap.entrySet()) {
-            PathMatcher globPathMatcher = FileSystems.getDefault().getPathMatcher('glob:' + mapEntry.key)
-            Path path = FileSystems.getDefault().getPath(relativeInputPath)
-            if (globPathMatcher.matches(path)) {
-                File outputFolder = project.file(mapEntry.value.output)
-                return project.file(outputFolder.path + '/' + input.name.substring(0, input.name.indexOf('.')) + '.' + mapEntry.value.format)
-            }
-        }
-
-        return null
-    }
-
     @Inject
     PlantUmlTask(WorkerExecutor workerExecutor) {
         this.workerExecutor = workerExecutor
@@ -70,6 +46,7 @@ class PlantUmlTask extends DefaultTask {
         // see https://stackoverflow.com/a/40957351/6271450
         def localWorkerExecutor = workerExecutor
         def localInputPreparedRenderMap = inputPreparedRenderMap
+        def localInputReceivedRenderMap = inputReceivedRenderMap
 
         if (!inputs.incremental) {
             logger.lifecycle('[PlantUml] Gradle cannot use an incremental build - rendering everything')
@@ -94,12 +71,14 @@ class PlantUmlTask extends DefaultTask {
         }
 
         inputs.removed { change ->
-            File outputFile = tryGetOutputFileForNotExistingInput(change.file)
+            File outputFile = PlantUmlUtils.tryGetOutputFileForNotExistingInput(localInputReceivedRenderMap, project, change.file)
             if (outputFile != null) {
                 if (outputFile.exists()) {
                     logger.lifecycle("[PlantUml] Deleting output file ${outputFile.path}} because of missing input file ${change.file.path}")
                     outputFile.delete()
                 }
+            } else {
+                logger.lifecycle("[PlantUml] Cannot determine output file for removed input file ${change.file.path}. Skipping deletion.")
             }
         }
     }

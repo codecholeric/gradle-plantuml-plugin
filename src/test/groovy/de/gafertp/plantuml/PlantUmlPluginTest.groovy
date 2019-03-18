@@ -123,9 +123,9 @@ class PlantUmlPluginTest {
             }
         """
 
-        executePluginTask()
-
-        assert new File(rootDir, 'output/sub').list().toList().isEmpty(): 'Output directory is empty'
+        def result = plantUmlTaskExecution().build()
+        assert result.output.contains('[PlantUml] Warning: ignoring render input: \'diagrams/*.notthere\' because no suitable files have been found')
+        assert !new File(rootDir, 'output/sub').exists()
     }
 
     @Test
@@ -181,6 +181,7 @@ class PlantUmlPluginTest {
 
         def result2 = plantUmlTaskExecution().build()
         assert result2.task(':plantUml').outcome == UP_TO_DATE
+        assert !result2.output.contains('[PlantUml] Gradle cannot use an incremental build - rendering everything')
     }
 
     @Test
@@ -220,13 +221,14 @@ class PlantUmlPluginTest {
 
         def result2 = plantUmlTaskExecution().build()
         assert result2.task(':plantUml').outcome == SUCCESS
+        assert result2.output.contains('[PlantUml] Gradle cannot use an incremental build - rendering everything')
     }
 
     @Test
     void returns_out_of_date_on_deleted_input_and_does_not_generate_all() {
         buildFile << """
             plantUml {
-                render input: '${diagramDir.name}/f*.puml', output: 'output/sub', format: 'png'
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
             }
         """
 
