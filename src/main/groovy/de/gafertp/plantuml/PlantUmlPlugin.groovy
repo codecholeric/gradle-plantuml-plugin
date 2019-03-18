@@ -20,7 +20,7 @@ class PlantUmlPlugin implements Plugin<Project> {
 
         project.tasks.register('plantUmlIO') {
             prepareRenders(project, extension.receivedRenders).each { entry ->
-                project.println("${project.relativePath(entry.input)},${project.relativePath(entry.output)}")
+                project.println("${project.relativePath(entry.input).replace('\\', '/')},${project.relativePath(entry.output).replace('\\', '/')}")
             }
         }
 
