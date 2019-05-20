@@ -5,7 +5,7 @@ plugins {
     id 'maven-publish'
 
     // for local testing purposes
-    id "com.jfrog.artifactory" version '4.9.3'
+    id "com.jfrog.artifactory" version '4.9.6'
 }
 
 group = 'de.gafertp.plantuml'
@@ -16,11 +16,11 @@ repositories {
 }
 
 dependencies {
-    compile 'net.sourceforge.plantuml:plantuml:1.2019.3'
+    compile 'net.sourceforge.plantuml:plantuml:1.2019.5'
 
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.1'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.1'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
 }
 
 gradlePlugin {
