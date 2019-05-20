@@ -4,7 +4,7 @@ This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/)
 
 ## Requirements
 
-* [Graphviz](https://www.graphviz.org/download/) (may be needed for rendering certain diagrams)
+* [Graphviz](https://www.graphviz.org/download/) (may be needed for rendering certain diagrams, use a version defined [here](http://plantuml.com/graphviz-dot))
 
 ## How to use it
 
@@ -12,7 +12,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '2.0.0'
+  id 'de.gafertp.plantuml' version '2.1.0'
 }
 ```
 
@@ -35,10 +35,10 @@ Note that `format: 'xxx'` is optional, if and only if
 * the target is a single file
 * the target has a known image file ending like `svg` or `png`
 
-The plugin adds a custom `plantUml` task:
+The plugin adds a custom `:plantUml` task:
 
 ```
-./gradlew plantUml
+./gradlew :plantUml
 ```
 
 ## Incremental build support
@@ -61,7 +61,7 @@ by configuring the plugin within the `buildscript` block:
 ```
 buildscript {
     dependencies {
-        classpath('de.gafertp:gradle-plantuml-plugin:2.0.0') {
+        classpath('de.gafertp:gradle-plantuml-plugin:2.1.0') {
             exclude group: 'net.sourceforge.plantuml', module: 'plantuml'
         }
         classpath "net.sourceforge.plantuml:plantuml:${myVersion}"
@@ -100,7 +100,7 @@ group = 'de.gafertp.plantuml'
 version = '<your_plugin_version>'
 ```
 
-After this, just run the `:artifactoryDeploy` task after building, and the plugin will be automatically deployed to your local repository.
+After this, just run the `:artifactoryPublish` task after building, and the plugin will be automatically published to your local repository.
 
 To use this custom build in your project, just add the following to your `settings.gradle` file:
 
