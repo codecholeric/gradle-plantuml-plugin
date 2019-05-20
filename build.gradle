@@ -3,9 +3,6 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.10.1'
     id 'groovy'
     id 'maven-publish'
-
-    // for local testing purposes
-    id "com.jfrog.artifactory" version '4.9.6'
 }
 
 group = 'de.gafertp.plantuml'
