@@ -81,7 +81,78 @@ classpath files('libs/plantuml-any.jar')
 
 If you want to fork this plugin and extend its functionality, you will also want to test your modifications. For this, you'll have to deploy the plugin to a local artifact repository.
 
-For this you can use a local JFrog Artifactory artifact repository. You have to make/edit your `~/.gradle/gradle.properties` (`~` means your home directory) file and add the following details (considering you are running with default settings and a default Gradle repository initialized):
+For this you can use a local JFrog Artifactory artifact repository. 
+
+Add the following line to your `plugins` closure in `build.gradle`:
+```
+// for local testing purposes
+id "com.jfrog.artifactory" version '4.9.6'
+```
+
+Add the following to `build.gradle`:
+```
+// for local testing purposes
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    archiveClassifier = 'source'
+}
+
+// for local testing purposes
+artifacts {
+    archives sourcesJar
+}
+
+// for local testing purposes
+publishing {
+    repositories {
+        mavenLocal()
+    }
+
+    publications {
+        // used by Artifactory Gradle plugin
+        plantUmlPluginJar(MavenPublication) {
+            from components.java
+            // these have to be specified explicitly because
+            // the Artifactory Gradle plugin is not compatible with
+            // the java-gradle-plugin that exports jars using Gradle Marker Artifacts
+            // Gradle Marker Artifacts are needed to use the new plugins DSL
+            // instead of buildscript repository, dependency and apply plugin declarations
+            groupId gradlePlugin.plugins.plantUmlPlugin.id
+            artifactId gradlePlugin.plugins.plantUmlPlugin.id + ".gradle.plugin"
+
+            artifact(sourcesJar) {
+                classifier = 'source'
+            }
+        }
+    }
+}
+
+// for local testing purposes
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = "${artifactory_publish_repoKey}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+        defaults {
+            publications('plantUmlPluginJar')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = "${artifactory_resolve_repoKey}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}
+```
+
+You have to make/edit your `~/.gradle/gradle.properties` (`~` means your home directory) file and add the following details (considering you are running with default settings and a default Gradle repository initialized):
 
 ```
 artifactory_user=your_artifactory_user
@@ -114,7 +185,7 @@ pluginManagement {
 }
 ```
 
-It is not necessary to modify your plugins closure in `build.gradle`. It should look like this:
+It is not necessary to modify your plugins closure in `build.gradle` in the project that uses the plugin. It should look like this:
 
 ```
 plugins {
