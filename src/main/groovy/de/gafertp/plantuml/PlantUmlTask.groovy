@@ -33,10 +33,17 @@ abstract class PlantUmlTask extends DefaultTask {
     @OutputFiles
     abstract ConfigurableFileCollection getOutputFiles()
 
+    @OutputDirectories
+    abstract ConfigurableFileCollection getOutputDirectories()
+
     void addPreparedRender(PlantUmlPreparedRender preparedRender) {
         inputPreparedRenderMap << [(preparedRender.input): preparedRender]
         inputFiles.from(preparedRender.input)
-        outputFiles.from(preparedRender.output)
+        if (preparedRender.outputReceivedAsDirectory) {
+            outputDirectories.from(preparedRender.output.parentFile)
+        } else {
+            outputFiles.from(preparedRender.output)
+        }
     }
 
     void addReceivedRender(PlantUmlReceivedRender receivedRender) {

@@ -8,4 +8,5 @@ class PlantUmlPreparedRender implements Serializable {
     File input
     File output
     FileFormat format
+    boolean outputReceivedAsDirectory
 }

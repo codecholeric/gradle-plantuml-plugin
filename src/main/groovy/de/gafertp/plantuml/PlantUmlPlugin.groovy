@@ -57,7 +57,7 @@ class PlantUmlPlugin implements Plugin<Project> {
                         outputFile.name.endsWith(render.format.fileSuffix)
 
                 if (isDirectFileRendering) {
-                    addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format)
+                    addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format, false)
                 } else {
                     addDirectoryToPreparedRenders(preparedRenders, matchingFileNames, outputFile, render.format)
                 }
@@ -69,9 +69,9 @@ class PlantUmlPlugin implements Plugin<Project> {
         return preparedRenders
     }
 
-    private static void addFileToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, File inputFile, File outputFile, FileFormat fileFormat) {
+    private static void addFileToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, File inputFile, File outputFile, FileFormat fileFormat, boolean outputReceivedAsDirectory) {
         assert outputFile.parentFile.exists() || outputFile.parentFile.mkdirs()
-        preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, fileFormat)
+        preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, fileFormat, outputReceivedAsDirectory)
     }
 
     private static void addDirectoryToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, List<String> inputFiles, File outputDirectory, FileFormat fileFormat) {
@@ -84,7 +84,7 @@ class PlantUmlPlugin implements Plugin<Project> {
             def outputFileName = "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${fileFormat.fileSuffix}"
             def outputFile = new File(outputDirectory, outputFileName)
 
-            addFileToPreparedRenders(preparedRenders, inputFile, outputFile, fileFormat)
+            addFileToPreparedRenders(preparedRenders, inputFile, outputFile, fileFormat, true)
         }
     }
 }
