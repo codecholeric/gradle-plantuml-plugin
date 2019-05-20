@@ -6,11 +6,8 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileType
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectories
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFiles
-import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges

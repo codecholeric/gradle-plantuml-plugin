@@ -11,7 +11,6 @@ import org.junitpioneer.jupiter.TempDirectory.TempDir
 
 import java.nio.file.Path
 
-import static org.gradle.testkit.runner.TaskOutcome.FAILED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
