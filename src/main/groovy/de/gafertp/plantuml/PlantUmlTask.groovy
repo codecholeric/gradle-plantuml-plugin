@@ -84,14 +84,21 @@ abstract class PlantUmlTask extends DefaultTask {
                             "Input file ${change.file.toString()} declared as out of date by Gradle but not declared as an input value by the user"
                     )
                 }
-            }
-
-            else if (change.changeType == ChangeType.REMOVED) {
+            } else if (change.changeType == ChangeType.REMOVED) {
                 File outputFile = PlantUmlUtils.tryGetOutputFileForNotExistingInput(localInputReceivedRenderMap, project, change.file)
                 if (outputFile != null) {
                     if (outputFile.exists()) {
-                        logger.lifecycle("[PlantUml] Deleting output file ${outputFile.path}} because of missing input file ${change.file.path}")
-                        outputFile.delete()
+                        logger.lifecycle("[PlantUml] Deleting output file ${outputFile.path} because of missing input file ${change.file.path}")
+                        try {
+                            def deletedSuccessfully = outputFile.delete()
+                            if (!deletedSuccessfully) {
+                                logger.lifecycle("[PlantUml] Couldn't delete ${outputFile.path}: probably there are missing permissions")
+                            }
+                        } catch (SecurityException exception) {
+                            logger.lifecycle("[PlantUml] Error when deleting output file ${outputFile.path}: ${exception.toString()}")
+                        }
+                    } else {
+                        logger.lifecycle("[PlantUml] Couldn't delete ${outputFile.path}: file doesn't exist")
                     }
                 } else {
                     logger.lifecycle("[PlantUml] Cannot determine output file for removed input file ${change.file.path}. Skipping deletion.")

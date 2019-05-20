@@ -19,7 +19,7 @@ class PlantUmlUtils {
             Path path = FileSystems.getDefault().getPath(relativeInputPath)
             if (globPathMatcher.matches(path)) {
                 File outputFolder = project.file(mapEntry.value.output)
-                return project.file(outputFolder.path + '/' + input.name.substring(0, input.name.indexOf('.')) + '.' + mapEntry.value.format)
+                return project.file(outputFolder.path + '/' + input.name.substring(0, input.name.indexOf('.')) + '.' + mapEntry.value.format.toString().toLowerCase())
             }
         }
 

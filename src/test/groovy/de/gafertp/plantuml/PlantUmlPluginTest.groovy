@@ -241,6 +241,24 @@ class PlantUmlPluginTest {
         assert !result2.output.contains('[PlantUml] Gradle cannot use an incremental build - rendering everything')
     }
 
+    @Test
+    void deletes_output_when_input_deleted() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlTaskExecution().build()
+        assert result.task(':plantUml').outcome == SUCCESS
+
+        firstPumlFile.delete()
+
+        def result2 = plantUmlTaskExecution().build()
+        assert result2.task(':plantUml').outcome == SUCCESS
+        assert result2.output.contains('[PlantUml] Deleting output file')
+    }
+
     private BuildResult executePluginTask() {
         def result = plantUmlTaskExecution().build()
         assert result.task(':plantUml').outcome == SUCCESS
