@@ -72,7 +72,7 @@ buildscript {
     }
 }
 
-apply plugin: 'de.gafertp.plantuml'
+apply plugin: 'com.cosminpolifronie.gradle.plantuml'
 ```
 
 Alternatively use a local JAR file:
