@@ -1,6 +1,7 @@
 # Gradle PlantUML Plugin
 
 This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/), based on this plugin [here](https://github.com/codecholeric/gradle-plantuml-plugin).
+Gradle plugins repository link: https://plugins.gradle.org/plugin/com.cosminpolifronie.gradle.plantuml
 
 ## Requirements
 
