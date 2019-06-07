@@ -1,4 +1,4 @@
-package de.gafertp.plantuml
+package com.cosminpolifronie.gradle.plantuml
 
 class PlantUmlPluginExtension {
     List<PlantUmlReceivedRender> receivedRenders = []

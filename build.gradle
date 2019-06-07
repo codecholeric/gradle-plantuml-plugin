@@ -5,8 +5,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'de.gafertp.plantuml'
-version = '2.1.0'
+group = 'com.oppturia.gradle'
+version = '1.0.0'
 
 repositories {
     mavenCentral()
@@ -23,19 +23,19 @@ dependencies {
 gradlePlugin {
     plugins {
         plantUmlPlugin {
-            id = 'de.gafertp.plantuml'
+            id = 'com.cosminpolifronie.gradle.plantuml'
             displayName = 'Gradle PlantUML Plugin'
-            description = 'A very simple plugin to render PlantUML files. ' +
+            description = 'A simple plugin to render PlantUML files. ' +
                     'Takes a set of diagram files together with desired output files / formats ' +
                     'and renders them with PlantUML (http://plantuml.com/).'
-            implementationClass = 'de.gafertp.plantuml.PlantUmlPlugin'
+            implementationClass = 'com.cosminpolifronie.gradle.plantuml.PlantUmlPlugin'
         }
     }
 }
 
 pluginBundle {
-    website = 'https://github.com/codecholeric/gradle-plantuml-plugin'
-    vcsUrl = 'https://github.com/codecholeric/gradle-plantuml-plugin'
+    website = 'https://github.com/cosminpolifronie/gradle-plantuml-plugin'
+    vcsUrl = 'https://github.com/cosminpolifronie/gradle-plantuml-plugin'
     tags = ['plantuml']
 }
 

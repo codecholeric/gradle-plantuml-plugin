@@ -1,4 +1,4 @@
-package de.gafertp.plantuml
+package com.cosminpolifronie.gradle.plantuml
 
 import net.sourceforge.plantuml.FileFormatOption
 import net.sourceforge.plantuml.SourceStringReader

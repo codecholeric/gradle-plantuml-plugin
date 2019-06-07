@@ -1,4 +1,4 @@
-package de.gafertp.plantuml
+package com.cosminpolifronie.gradle.plantuml
 
 import org.gradle.api.Project
 

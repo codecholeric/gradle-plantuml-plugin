@@ -1,6 +1,6 @@
 # Gradle PlantUML Plugin
 
-This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/).
+This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/), based on this plugin [here](https://github.com/codecholeric/gradle-plantuml-plugin).
 
 ## Requirements
 
@@ -12,7 +12,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '2.1.0'
+  id 'com.cosminpolifronie.gradle.plantuml' version '1.0.0'
 }
 ```
 
@@ -65,7 +65,7 @@ by configuring the plugin within the `buildscript` block:
 ```
 buildscript {
     dependencies {
-        classpath('de.gafertp:gradle-plantuml-plugin:2.1.0') {
+        classpath('com.cosminpolifronie.gradle:gradle-plantuml-plugin:1.0.0') {
             exclude group: 'net.sourceforge.plantuml', module: 'plantuml'
         }
         classpath "net.sourceforge.plantuml:plantuml:${myVersion}"
