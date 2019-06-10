@@ -322,6 +322,18 @@ class PlantUmlPluginTest {
         assert result.output.contentEquals('output/sub/first.png\r\n')
     }
 
+    @Test
+    void plantuml_output_for_input_no_path() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecutionBroken().buildAndFail()
+        assert result.output.contains('This task has to be run with the --path option set. Usage: ./gradlew :plantUmlOutputForInput --path="your_path_here"')
+    }
+
     private BuildResult executePluginTask() {
         def result = plantUmlTaskExecution().build()
         assert result.task(':plantUml').outcome == SUCCESS
@@ -346,6 +358,13 @@ class PlantUmlPluginTest {
         GradleRunner.create()
                 .withProjectDir(buildFile.parentFile)
                 .withArguments('plantUmlOutputForInput', "--path=\'${path}\'", '-q')
+                .withPluginClasspath()
+    }
+
+    private GradleRunner plantUmlOutputForInputTaskExecutionBroken() {
+        GradleRunner.create()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUmlOutputForInput', '-q')
                 .withPluginClasspath()
     }
 

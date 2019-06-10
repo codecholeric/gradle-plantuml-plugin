@@ -30,7 +30,7 @@ class PlantUmlOutputForInputTask extends DefaultTask {
                 println(project.relativePath(outputFile).replace('\\', '/'))
             }
         } else {
-            throw new PlantUmlException('This tasks has to be run with the --path option set. Usage: ./gradlew :plantUmlOutputForInput --path=\"your_path_here\"')
+            throw new PlantUmlException('This task has to be run with the --path option set. Usage: ./gradlew :plantUmlOutputForInput --path=\"your_path_here\"')
         }
     }
 }

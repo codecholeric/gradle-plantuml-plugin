@@ -14,7 +14,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'com.cosminpolifronie.gradle.plantuml' version '1.0.0'
+  id 'com.cosminpolifronie.gradle.plantuml' version '1.5.0'
 }
 ```
 
@@ -45,7 +45,7 @@ The plugin adds a custom `:plantUml` task to render the diagrams:
 
 There is are also two more tasks that help automate processes:
 * `./gradlew :plantUmlIO` - displays the inputs and outputs that the plugin uses for rendering formatted as 'input_file,output_file'
-* `./gradlew :plantUmlOutputForInput -Pplantumloutputforinputpath="your_path_here"` - try to guess the output file based on the input file given and the entries in `build.gradle` - this is also used internally to determine the output file for a deleted input so it could be deleted too - it will print the input file path if it could be determined, or nothing otherwise
+* `./gradlew :plantUmlOutputForInput --path="your_path_here"` - try to guess the output file based on the input file given and the entries in `build.gradle` - this is also used internally to determine the output file for a deleted input so it could be deleted too - it will print the input file path if it could be determined, or nothing otherwise
 
 ## Incremental build support
 
@@ -173,7 +173,7 @@ Make sure to change the plugin version to something new, so that it doesn't get 
 
 `build.gradle` in the plugin fork:
 ```
-group = 'de.gafertp.plantuml'
+group = 'com.cosminpolifronie.gradle.plantuml'
 version = '<your_plugin_version>'
 ```
 
@@ -196,6 +196,6 @@ It is not necessary to modify your plugins closure in `build.gradle` in the proj
 ```
 plugins {
 	// this is a custom plugin that will be found on a local Artifactory repository
-	id 'de.gafertp.plantuml' version '<your_plugin_version>'
+	id 'com.cosminpolifronie.gradle.plantuml' version '<your_plugin_version>'
 }
 ```
