@@ -67,7 +67,7 @@ by configuring the plugin within the `buildscript` block:
 ```
 buildscript {
     dependencies {
-        classpath('com.cosminpolifronie.gradle:gradle-plantuml-plugin:1.0.0') {
+        classpath('com.cosminpolifronie.gradle:gradle-plantuml-plugin:1.5.0') {
             exclude group: 'net.sourceforge.plantuml', module: 'plantuml'
         }
         classpath "net.sourceforge.plantuml:plantuml:${myVersion}"
