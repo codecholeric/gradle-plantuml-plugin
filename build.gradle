@@ -5,8 +5,10 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.oppturia.gradle'
-version = '1.0.0'
+group = 'com.cosminpolifronie.gradle'
+version = '1.4.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()

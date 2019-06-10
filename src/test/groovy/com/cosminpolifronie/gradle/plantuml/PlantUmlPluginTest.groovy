@@ -41,7 +41,7 @@ class PlantUmlPluginTest {
 
         buildFile << """
             plugins {
-                id 'de.gafertp.plantuml'
+                id 'com.cosminpolifronie.gradle.plantuml'
             }
         """
 
@@ -258,6 +258,69 @@ class PlantUmlPluginTest {
         assert result2.task(':plantUml').outcome == SUCCESS
         assert result2.output.contains('[PlantUml] Deleting output file')
     }
+    
+    @Test
+    void plantuml_io() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlIOTaskExecution().build()
+        assert result.task(':plantUmlIO').outcome == SUCCESS
+        assert result.output.contentEquals('diagrams/first.puml,output/sub/first.png\r\ndiagrams/second.puml,output/sub/second.png\r\n')
+    }
+
+    @Test
+    void plantuml_io_empty() {
+        buildFile << """
+            plantUml {
+            }
+        """
+
+        def result = plantUmlIOTaskExecution().build()
+        assert result.task(':plantUmlIO').outcome == SUCCESS
+        assert result.output.contentEquals('')
+    }
+
+    @Test
+    void plantuml_output_for_input() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecution("${diagramDir.name}/abc.puml").build()
+        assert result.task(':plantUmlOutputForInput').outcome == SUCCESS
+        assert result.output.contentEquals('output/sub/abc.png\r\n')
+    }
+
+    @Test
+    void plantuml_output_for_input_empty() {
+        buildFile << """
+            plantUml {
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecution("${diagramDir.name}/abc.puml").build()
+        assert result.task(':plantUmlOutputForInput').outcome == SUCCESS
+        assert result.output.contentEquals('')
+    }
+
+    @Test
+    void plantuml_output_for_input_existing() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecution("${diagramDir.name}/first.puml").build()
+        assert result.task(':plantUmlOutputForInput').outcome == SUCCESS
+        assert result.output.contentEquals('output/sub/first.png\r\n')
+    }
 
     private BuildResult executePluginTask() {
         def result = plantUmlTaskExecution().build()
@@ -270,6 +333,20 @@ class PlantUmlPluginTest {
                     .withProjectDir(buildFile.parentFile)
                     .withArguments('plantUml')
                     .withPluginClasspath()
+    }
+
+    private GradleRunner plantUmlIOTaskExecution() {
+        GradleRunner.create()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUmlIO', '-q')
+                .withPluginClasspath()
+    }
+
+    private GradleRunner plantUmlOutputForInputTaskExecution(String path) {
+        GradleRunner.create()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUmlOutputForInput', "--path=\'${path}\'", '-q')
+                .withPluginClasspath()
     }
 
     void assertOutputsExist(List<File> diagramFiles, FileFormat format) {
