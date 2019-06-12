@@ -1,4 +1,4 @@
-package de.gafertp.plantuml
+package com.cosminpolifronie.gradle.plantuml
 
 import net.sourceforge.plantuml.FileFormat
 import org.gradle.testkit.runner.BuildResult
@@ -11,7 +11,6 @@ import org.junitpioneer.jupiter.TempDirectory.TempDir
 
 import java.nio.file.Path
 
-import static org.gradle.testkit.runner.TaskOutcome.FAILED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
@@ -42,7 +41,7 @@ class PlantUmlPluginTest {
 
         buildFile << """
             plugins {
-                id 'de.gafertp.plantuml'
+                id 'com.cosminpolifronie.gradle.plantuml'
             }
         """
 
@@ -123,9 +122,9 @@ class PlantUmlPluginTest {
             }
         """
 
-        executePluginTask()
-
-        assert new File(rootDir, 'output/sub').list().toList().isEmpty(): 'Output directory is empty'
+        def result = plantUmlTaskExecution().build()
+        assert result.output.contains('[PlantUml] Warning: ignoring render input: \'diagrams/*.notthere\' because no suitable files have been found')
+        assert !new File(rootDir, 'output/sub').exists()
     }
 
     @Test
@@ -181,6 +180,7 @@ class PlantUmlPluginTest {
 
         def result2 = plantUmlTaskExecution().build()
         assert result2.task(':plantUml').outcome == UP_TO_DATE
+        assert !result2.output.contains('[PlantUml] Gradle cannot use an incremental build - rendering everything')
     }
 
     @Test
@@ -220,6 +220,118 @@ class PlantUmlPluginTest {
 
         def result2 = plantUmlTaskExecution().build()
         assert result2.task(':plantUml').outcome == SUCCESS
+        assert result2.output.contains('[PlantUml] Gradle cannot use an incremental build - rendering everything')
+    }
+
+    @Test
+    void returns_out_of_date_on_deleted_input_and_does_not_generate_all() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlTaskExecution().build()
+        assert result.task(':plantUml').outcome == SUCCESS
+
+        firstPumlFile.delete()
+
+        def result2 = plantUmlTaskExecution().build()
+        assert result2.task(':plantUml').outcome == SUCCESS
+        assert !result2.output.contains('[PlantUml] Gradle cannot use an incremental build - rendering everything')
+    }
+
+    @Test
+    void deletes_output_when_input_deleted() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlTaskExecution().build()
+        assert result.task(':plantUml').outcome == SUCCESS
+
+        firstPumlFile.delete()
+
+        def result2 = plantUmlTaskExecution().build()
+        assert result2.task(':plantUml').outcome == SUCCESS
+        assert result2.output.contains('[PlantUml] Deleting output file')
+    }
+    
+    @Test
+    void plantuml_io() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlIOTaskExecution().build()
+        assert result.task(':plantUmlIO').outcome == SUCCESS
+        assert result.output.contentEquals('diagrams/first.puml,output/sub/first.png\r\ndiagrams/second.puml,output/sub/second.png\r\n')
+    }
+
+    @Test
+    void plantuml_io_empty() {
+        buildFile << """
+            plantUml {
+            }
+        """
+
+        def result = plantUmlIOTaskExecution().build()
+        assert result.task(':plantUmlIO').outcome == SUCCESS
+        assert result.output.contentEquals('')
+    }
+
+    @Test
+    void plantuml_output_for_input() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecution("${diagramDir.name}/abc.puml").build()
+        assert result.task(':plantUmlOutputForInput').outcome == SUCCESS
+        assert result.output.contentEquals('output/sub/abc.png\r\n')
+    }
+
+    @Test
+    void plantuml_output_for_input_empty() {
+        buildFile << """
+            plantUml {
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecution("${diagramDir.name}/abc.puml").build()
+        assert result.task(':plantUmlOutputForInput').outcome == SUCCESS
+        assert result.output.contentEquals('')
+    }
+
+    @Test
+    void plantuml_output_for_input_existing() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecution("${diagramDir.name}/first.puml").build()
+        assert result.task(':plantUmlOutputForInput').outcome == SUCCESS
+        assert result.output.contentEquals('output/sub/first.png\r\n')
+    }
+
+    @Test
+    void plantuml_output_for_input_no_path() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/*.puml', output: 'output/sub', format: 'png'
+            }
+        """
+
+        def result = plantUmlOutputForInputTaskExecutionBroken().buildAndFail()
+        assert result.output.contains('This task has to be run with the --path option set. Usage: ./gradlew :plantUmlOutputForInput --path="your_path_here"')
     }
 
     private BuildResult executePluginTask() {
@@ -233,6 +345,27 @@ class PlantUmlPluginTest {
                     .withProjectDir(buildFile.parentFile)
                     .withArguments('plantUml')
                     .withPluginClasspath()
+    }
+
+    private GradleRunner plantUmlIOTaskExecution() {
+        GradleRunner.create()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUmlIO', '-q')
+                .withPluginClasspath()
+    }
+
+    private GradleRunner plantUmlOutputForInputTaskExecution(String path) {
+        GradleRunner.create()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUmlOutputForInput', "--path=\'${path}\'", '-q')
+                .withPluginClasspath()
+    }
+
+    private GradleRunner plantUmlOutputForInputTaskExecutionBroken() {
+        GradleRunner.create()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUmlOutputForInput', '-q')
+                .withPluginClasspath()
     }
 
     void assertOutputsExist(List<File> diagramFiles, FileFormat format) {

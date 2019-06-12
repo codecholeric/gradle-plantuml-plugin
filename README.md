@@ -1,10 +1,12 @@
 # Gradle PlantUML Plugin
 
-This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/).
+This is a plugin that renders diagram files via [PlantUML](http://plantuml.com/), based on this plugin [here](https://github.com/codecholeric/gradle-plantuml-plugin).
+
+Gradle plugins repository link: https://plugins.gradle.org/plugin/com.cosminpolifronie.gradle.plantuml
 
 ## Requirements
 
-* [Graphviz](https://www.graphviz.org/download/) (may be needed for rendering certain diagrams)
+* [Graphviz](https://www.graphviz.org/download/) (may be needed for rendering certain diagrams, use a version defined [here](http://plantuml.com/graphviz-dot))
 
 ## How to use it
 
@@ -12,7 +14,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'de.gafertp.plantuml' version '2.0.0'
+  id 'com.cosminpolifronie.gradle.plantuml' version '1.5.0'
 }
 ```
 
@@ -35,11 +37,15 @@ Note that `format: 'xxx'` is optional, if and only if
 * the target is a single file
 * the target has a known image file ending like `svg` or `png`
 
-The plugin adds a custom `plantUml` task:
+The plugin adds a custom `:plantUml` task to render the diagrams:
 
 ```
-./gradlew plantUml
+./gradlew :plantUml
 ```
+
+There is are also two more tasks that help automate processes:
+* `./gradlew :plantUmlIO` - displays the inputs and outputs that the plugin uses for rendering formatted as 'input_file,output_file'
+* `./gradlew :plantUmlOutputForInput --path="your_path_here"` - try to guess the output file based on the input file given and the entries in `build.gradle` - this is also used internally to determine the output file for a deleted input so it could be deleted too - it will print the input file path if it could be determined, or nothing otherwise
 
 ## Incremental build support
 
@@ -61,14 +67,14 @@ by configuring the plugin within the `buildscript` block:
 ```
 buildscript {
     dependencies {
-        classpath('de.gafertp:gradle-plantuml-plugin:2.0.0') {
+        classpath('com.cosminpolifronie.gradle:gradle-plantuml-plugin:1.5.0') {
             exclude group: 'net.sourceforge.plantuml', module: 'plantuml'
         }
         classpath "net.sourceforge.plantuml:plantuml:${myVersion}"
     }
 }
 
-apply plugin: 'de.gafertp.plantuml'
+apply plugin: 'com.cosminpolifronie.gradle.plantuml'
 ```
 
 Alternatively use a local JAR file:
@@ -81,7 +87,78 @@ classpath files('libs/plantuml-any.jar')
 
 If you want to fork this plugin and extend its functionality, you will also want to test your modifications. For this, you'll have to deploy the plugin to a local artifact repository.
 
-For this you can use a local JFrog Artifactory artifact repository. You have to make/edit your `~/.gradle/gradle.properties` (`~` means your home directory) file and add the following details (considering you are running with default settings and a default Gradle repository initialized):
+For this you can use a local JFrog Artifactory artifact repository. 
+
+Add the following line to your `plugins` closure in `build.gradle`:
+```
+// for local testing purposes
+id "com.jfrog.artifactory" version '4.9.6'
+```
+
+Add the following to `build.gradle`:
+```
+// for local testing purposes
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    archiveClassifier = 'source'
+}
+
+// for local testing purposes
+artifacts {
+    archives sourcesJar
+}
+
+// for local testing purposes
+publishing {
+    repositories {
+        mavenLocal()
+    }
+
+    publications {
+        // used by Artifactory Gradle plugin
+        plantUmlPluginJar(MavenPublication) {
+            from components.java
+            // these have to be specified explicitly because
+            // the Artifactory Gradle plugin is not compatible with
+            // the java-gradle-plugin that exports jars using Gradle Marker Artifacts
+            // Gradle Marker Artifacts are needed to use the new plugins DSL
+            // instead of buildscript repository, dependency and apply plugin declarations
+            groupId gradlePlugin.plugins.plantUmlPlugin.id
+            artifactId gradlePlugin.plugins.plantUmlPlugin.id + ".gradle.plugin"
+
+            artifact(sourcesJar) {
+                classifier = 'source'
+            }
+        }
+    }
+}
+
+// for local testing purposes
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = "${artifactory_publish_repoKey}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+        defaults {
+            publications('plantUmlPluginJar')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = "${artifactory_resolve_repoKey}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}
+```
+
+You have to make/edit your `~/.gradle/gradle.properties` (`~` means your home directory) file and add the following details (considering you are running with default settings and a default Gradle repository initialized):
 
 ```
 artifactory_user=your_artifactory_user
@@ -96,11 +173,11 @@ Make sure to change the plugin version to something new, so that it doesn't get 
 
 `build.gradle` in the plugin fork:
 ```
-group = 'de.gafertp.plantuml'
+group = 'com.cosminpolifronie.gradle.plantuml'
 version = '<your_plugin_version>'
 ```
 
-After this, just run the `:artifactoryDeploy` task after building, and the plugin will be automatically deployed to your local repository.
+After this, just run the `:artifactoryPublish` task after building, and the plugin will be automatically published to your local repository.
 
 To use this custom build in your project, just add the following to your `settings.gradle` file:
 
@@ -114,11 +191,11 @@ pluginManagement {
 }
 ```
 
-It is not necessary to modify your plugins closure in `build.gradle`. It should look like this:
+It is not necessary to modify your plugins closure in `build.gradle` in the project that uses the plugin. It should look like this:
 
 ```
 plugins {
 	// this is a custom plugin that will be found on a local Artifactory repository
-	id 'de.gafertp.plantuml' version '<your_plugin_version>'
+	id 'com.cosminpolifronie.gradle.plantuml' version '<your_plugin_version>'
 }
 ```

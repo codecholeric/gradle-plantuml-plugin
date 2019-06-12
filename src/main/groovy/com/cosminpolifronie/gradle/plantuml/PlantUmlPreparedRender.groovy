@@ -1,4 +1,4 @@
-package de.gafertp.plantuml
+package com.cosminpolifronie.gradle.plantuml
 
 import groovy.transform.Canonical
 import net.sourceforge.plantuml.FileFormat
@@ -8,4 +8,5 @@ class PlantUmlPreparedRender implements Serializable {
     File input
     File output
     FileFormat format
+    boolean outputReceivedAsDirectory
 }
