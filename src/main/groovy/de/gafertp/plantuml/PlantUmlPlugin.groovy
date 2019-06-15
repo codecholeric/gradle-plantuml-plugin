@@ -3,12 +3,21 @@ package de.gafertp.plantuml
 import net.sourceforge.plantuml.FileFormat
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class PlantUmlPlugin implements Plugin<Project> {
+    Logger logger = LoggerFactory.getLogger(PlantUmlPlugin)
+
     void apply(Project project) {
+
         def extension = project.extensions.create('plantUml', PlantUmlPluginExtension)
 
         project.tasks.register('plantUml', PlantUmlTask) {
+            logger.warn '''
+                WARNING: Maintenance of this plugin has moved on to "com.cosminpolifronie.gradle.plantuml", please use that plugin instead!!
+            '''.stripIndent()
+
             prepareRenders(project, extension.receivedRenders).each { entry ->
                 inputFiles << entry.input
                 outputFiles << entry.output
