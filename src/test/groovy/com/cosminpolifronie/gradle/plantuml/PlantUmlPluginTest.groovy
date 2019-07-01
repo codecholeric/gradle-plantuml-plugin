@@ -121,7 +121,6 @@ class PlantUmlPluginTest {
         def generatedDiagram = new File(rootDir, 'output/sub/puml.svg')
         assert generatedDiagram.exists(): 'Rendered diagram exists'
         assert generatedDiagram.isFile(): 'Rendered diagram is a file'
-        print(generatedDiagram.text)
         assert generatedDiagram.text.matches("[\\S\\s]*(<!--[\\n\\r]*@startuml[\\s\\S]*-->)[\\S\\s]*")
     }
 
