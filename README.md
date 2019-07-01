@@ -47,7 +47,7 @@ The plugin adds a custom `:plantUml` task to render the diagrams:
 ./gradlew :plantUml
 ```
 
-There is are also two more tasks that help automate processes:
+There are also two more tasks that help automate processes:
 * `./gradlew :plantUmlIO` - displays the inputs and outputs that the plugin uses for rendering formatted as 'input_file,output_file'
 * `./gradlew :plantUmlOutputForInput --path="your_path_here"` - try to guess the output file based on the input file given and the entries in `build.gradle` - this is also used internally to determine the output file for a deleted input so it could be deleted too - it will print the input file path if it could be determined, or nothing otherwise
 
