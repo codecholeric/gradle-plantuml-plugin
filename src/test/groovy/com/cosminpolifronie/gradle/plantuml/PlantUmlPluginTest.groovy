@@ -76,6 +76,56 @@ class PlantUmlPluginTest {
     }
 
     @Test
+    void renders_single_file_no_metadata() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/${firstPumlFile.name}', output: 'output/sub/puml.svg', withMetadata: false
+            }
+        """
+
+        executePluginTask()
+
+        def generatedDiagram = new File(rootDir, 'output/sub/puml.svg')
+        assert generatedDiagram.exists(): 'Rendered diagram exists'
+        assert generatedDiagram.isFile(): 'Rendered diagram is a file'
+        print(generatedDiagram.text)
+        assert !generatedDiagram.text.matches("[\\S\\s]*(<!--[\\n\\r]*@startuml[\\s\\S]*-->)[\\S\\s]*")
+    }
+
+    @Test
+    void renders_single_file_with_metadata() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/${firstPumlFile.name}', output: 'output/sub/puml.svg', withMetadata: true
+            }
+        """
+
+        executePluginTask()
+
+        def generatedDiagram = new File(rootDir, 'output/sub/puml.svg')
+        assert generatedDiagram.exists(): 'Rendered diagram exists'
+        assert generatedDiagram.isFile(): 'Rendered diagram is a file'
+        assert generatedDiagram.text.matches("[\\S\\s]*(<!--[\\n\\r]*@startuml[\\s\\S]*-->)[\\S\\s]*")
+    }
+
+    @Test
+    void renders_single_file_default_metadata() {
+        buildFile << """
+            plantUml {
+                render input: '${diagramDir.name}/${firstPumlFile.name}', output: 'output/sub/puml.svg'
+            }
+        """
+
+        executePluginTask()
+
+        def generatedDiagram = new File(rootDir, 'output/sub/puml.svg')
+        assert generatedDiagram.exists(): 'Rendered diagram exists'
+        assert generatedDiagram.isFile(): 'Rendered diagram is a file'
+        print(generatedDiagram.text)
+        assert generatedDiagram.text.matches("[\\S\\s]*(<!--[\\n\\r]*@startuml[\\s\\S]*-->)[\\S\\s]*")
+    }
+
+    @Test
     void renders_multiple_files_of_same_type() {
         buildFile << """
             plantUml {
@@ -258,7 +308,7 @@ class PlantUmlPluginTest {
         assert result2.task(':plantUml').outcome == SUCCESS
         assert result2.output.contains('[PlantUml] Deleting output file')
     }
-    
+
     @Test
     void plantuml_io() {
         buildFile << """
@@ -342,9 +392,9 @@ class PlantUmlPluginTest {
 
     private GradleRunner plantUmlTaskExecution() {
         GradleRunner.create()
-                    .withProjectDir(buildFile.parentFile)
-                    .withArguments('plantUml')
-                    .withPluginClasspath()
+                .withProjectDir(buildFile.parentFile)
+                .withArguments('plantUml')
+                .withPluginClasspath()
     }
 
     private GradleRunner plantUmlIOTaskExecution() {

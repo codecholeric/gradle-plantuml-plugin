@@ -15,7 +15,7 @@ class PlantUmlUtils {
             return project.file(inputReceivedRenderMap[relativeInputPath].output)
         }
 
-        for (Map.Entry<String, PlantUmlReceivedRender> mapEntry: inputReceivedRenderMap.entrySet()) {
+        for (Map.Entry<String, PlantUmlReceivedRender> mapEntry : inputReceivedRenderMap.entrySet()) {
             PathMatcher globPathMatcher = FileSystems.getDefault().getPathMatcher('glob:' + mapEntry.key)
             Path path = FileSystems.getDefault().getPath(relativeInputPath)
             if (globPathMatcher.matches(path)) {
@@ -41,9 +41,9 @@ class PlantUmlUtils {
                         outputFile.name.endsWith(render.format.fileSuffix)
 
                 if (isDirectFileRendering) {
-                    addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format, false)
+                    addFileToPreparedRenders(preparedRenders, new File(matchingFileNames[0]), outputFile, render.format, false, render.withMetadata)
                 } else {
-                    addDirectoryToPreparedRenders(preparedRenders, matchingFileNames, outputFile, render.format)
+                    addDirectoryToPreparedRenders(preparedRenders, matchingFileNames, outputFile, render.format, render.withMetadata)
                 }
             } else {
                 project.logger.warn("[PlantUml] Warning: ignoring render input: '${render.input}' because no suitable files have been found")
@@ -53,12 +53,12 @@ class PlantUmlUtils {
         return preparedRenders
     }
 
-    static void addFileToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, File inputFile, File outputFile, FileFormat fileFormat, boolean outputReceivedAsDirectory) {
+    static void addFileToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, File inputFile, File outputFile, FileFormat fileFormat, boolean outputReceivedAsDirectory, boolean withMetadata) {
         assert outputFile.parentFile.exists() || outputFile.parentFile.mkdirs()
-        preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, fileFormat, outputReceivedAsDirectory)
+        preparedRenders << new PlantUmlPreparedRender(inputFile, outputFile, fileFormat, outputReceivedAsDirectory, withMetadata)
     }
 
-    static void addDirectoryToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, List<String> inputFiles, File outputDirectory, FileFormat fileFormat) {
+    static void addDirectoryToPreparedRenders(List<PlantUmlPreparedRender> preparedRenders, List<String> inputFiles, File outputDirectory, FileFormat fileFormat, boolean withMetadata) {
         assert outputDirectory.exists() || outputDirectory.mkdirs(): "Cannot create directory ${outputDirectory.absolutePath}"
         assert outputDirectory.isDirectory():
                 "Input ${inputFiles} matches multiple files, but output ${outputDirectory.absolutePath} is no directory"
@@ -68,7 +68,7 @@ class PlantUmlUtils {
             def outputFileName = "${inputFile.name.take(inputFile.name.lastIndexOf('.'))}${fileFormat.fileSuffix}"
             def outputFile = new File(outputDirectory, outputFileName)
 
-            addFileToPreparedRenders(preparedRenders, inputFile, outputFile, fileFormat, true)
+            addFileToPreparedRenders(preparedRenders, inputFile, outputFile, fileFormat, true, withMetadata)
         }
     }
 }

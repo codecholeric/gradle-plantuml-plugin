@@ -9,4 +9,5 @@ class PlantUmlPreparedRender implements Serializable {
     File output
     FileFormat format
     boolean outputReceivedAsDirectory
+    boolean withMetadata = true
 }

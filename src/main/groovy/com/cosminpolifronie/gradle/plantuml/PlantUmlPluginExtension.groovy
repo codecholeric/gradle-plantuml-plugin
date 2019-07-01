@@ -10,7 +10,14 @@ class PlantUmlPluginExtension {
         String input = config.input.replace('\\', '/')
         String output = config.output.replace('\\', '/')
         String format = config.format
+        boolean withMetadata
 
-        receivedRenders << new PlantUmlReceivedRender(input: input, output: output, format: format)
+        if (config.withMetadata == null) {
+            withMetadata = true
+        } else {
+            withMetadata = config.withMetadata
+        }
+
+        receivedRenders << new PlantUmlReceivedRender(input: input, output: output, format: format, withMetadata: withMetadata)
     }
 }

@@ -8,6 +8,7 @@ class PlantUmlReceivedRender {
     String input
     String output
     String format
+    boolean withMetadata = true
 
     FileFormat getFormat() {
         def formatString = format ?: output.replaceAll(/.*\./, '')

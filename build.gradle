@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.cosminpolifronie.gradle'
-version = '1.5.0'
+version = '1.6.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.sourceforge.plantuml:plantuml:1.2019.6'
+    compile 'net.sourceforge.plantuml:plantuml:1.2019.7'
 
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testCompile 'org.junit-pioneer:junit-pioneer:0.3.0'

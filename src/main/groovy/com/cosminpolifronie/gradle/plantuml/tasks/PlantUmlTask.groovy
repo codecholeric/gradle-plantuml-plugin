@@ -1,10 +1,6 @@
 package com.cosminpolifronie.gradle.plantuml.tasks
 
-import com.cosminpolifronie.gradle.plantuml.PlantUmlException
-import com.cosminpolifronie.gradle.plantuml.PlantUmlPreparedRender
-import com.cosminpolifronie.gradle.plantuml.PlantUmlReceivedRender
-import com.cosminpolifronie.gradle.plantuml.PlantUmlRenderer
-import com.cosminpolifronie.gradle.plantuml.PlantUmlUtils
+import com.cosminpolifronie.gradle.plantuml.*
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection

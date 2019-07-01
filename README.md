@@ -14,7 +14,7 @@ Declare the plugin:
 
 ```
 plugins {
-  id 'com.cosminpolifronie.gradle.plantuml' version '1.5.0'
+  id 'com.cosminpolifronie.gradle.plantuml' version '1.6.0'
 }
 ```
 
@@ -22,11 +22,13 @@ Then configure PlantUML files to render:
 
 ```
 plantUml {
-    render input: 'diagrams/some.puml', output: 'some.svg', format: 'svg'
-    render input: 'diagrams/some.ditaa', output: 'some.png'
-    render input: 'diagrams/release/*.puml', output: "${project.buildDir.absolutePath}/release", format: 'png'
+    render input: 'diagrams/some.puml', output: 'some.svg', format: 'svg', withMetadata: false
+    render input: 'diagrams/some.ditaa', output: 'some.png', withMetadata: true
+    render input: 'diagrams/release/*.puml', output: "${project.buildDir.absolutePath}/release", format: 'png', withMetadata: false
 }
 ```
+
+You can even tell PlantUML to not include its metadata (the PlantUML script and the build properties) using the `withMetadata` property (which is `true` by default):
 
 Input can either be a concrete file name or a glob pattern (e.g. `diagrams/**/*.puml`). Output can
 either be a concrete file name or a folder (in which case output file names will match the input file
@@ -36,6 +38,8 @@ Note that `format: 'xxx'` is optional, if and only if
 
 * the target is a single file
 * the target has a known image file ending like `svg` or `png`
+
+Note that `withMetadata: true/false` is completely optional and is by default `true`.
 
 The plugin adds a custom `:plantUml` task to render the diagrams:
 
@@ -67,7 +71,7 @@ by configuring the plugin within the `buildscript` block:
 ```
 buildscript {
     dependencies {
-        classpath('com.cosminpolifronie.gradle:gradle-plantuml-plugin:1.5.0') {
+        classpath('com.cosminpolifronie.gradle:gradle-plantuml-plugin:1.6.0') {
             exclude group: 'net.sourceforge.plantuml', module: 'plantuml'
         }
         classpath "net.sourceforge.plantuml:plantuml:${myVersion}"
